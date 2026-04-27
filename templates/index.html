@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Token Joiner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/window-controls.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/loading-screen.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tabs.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cards.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/progress.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/log.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/table.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/others.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-icon large">
+            <h1>Nexus Token Joiner</h1>
+            <div class="loading-bar">
+                <div class="loading-progress" id="loading-progress"></div>
+            </div>
+            <div class="loading-status" id="loading-status">Initializing...</div>
+        </div>
+    </div>
+
+    <div class="container" id="main-container" style="display: none;">
+        <header>
+            <div class="logo">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo-icon">
+                <h1>Nexus Token Joiner</h1>
+            </div>
+            <div class="window-controls">
+                <span class="window-btn minimize" title="Minimize" onclick="minimizeWindow()"></span>
+                <span class="window-btn close" title="Close" onclick="closeWindow()"></span>
+            </div>
+        </header>
+
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="home">Joiner</button>
+                <button class="tab-btn" data-tab="tokens-proxies">Tokens & Proxies</button>
+                <button class="tab-btn" data-tab="vc-joiner">VC Joiner</button>
+                <button class="tab-btn" data-tab="token-leaver">Token Leaver</button>
+                <button class="tab-btn" data-tab="pfp-adder">PFP Adder</button>
+                <button class="tab-btn" data-tab="settings">Settings</button>
+                <button class="tab-btn" data-tab="terminal">Terminal</button>
+            </div>
+        </div>
+
+        <div class="tab-content active" id="home-tab">
+            <div class="card server-join-card">
+                <h2>Server Joining</h2>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <span>Token Filling</span>
+                        <span class="setting-description">Fill tokens with multiple invites</span>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle">
+                            <input type="checkbox" id="join-token-filling">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="single-invite-container">
+                    <div class="input-group">
+                        <label for="server-invite" id="server-invite-label">Server Invite Code or URL</label>
+                        <input type="text" id="server-invite" placeholder="discord.gg/invite or full URL">
+                    </div>
+                </div>
+                
+                <div id="multiple-invites-container" style="display: none;">
+                    <div class="drag-drop-area" id="invites-drag-area">
+                        <div class="drag-drop-content">
+                            <div class="upload-icon">+</div>
+                            <span>Drag & Drop Invites File or Click to Upload</span>
+                            <input type="file" id="invites-file" accept=".txt" class="file-input">
+                        </div>
+                        <div class="file-info" id="invites-file-info">No file selected</div>
+                    </div>
+                    <div class="input-group">
+                        <label for="multiple-invites">Or Paste Server Invites (one per line)</label>
+                        <textarea id="multiple-invites" placeholder="Enter server invites here..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button id="join-btn" class="primary-btn" onclick="startJoining()">Join Server</button>
+                    <button id="stop-btn" class="secondary-btn" disabled>Stop</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tokens-proxies-tab">
+            <div class="card token-input-card">
+                <h2>Token Input</h2>
+                <div class="drag-drop-area" id="tokens-drag-area">
+                    <div class="drag-drop-content">
+                        <div class="upload-icon">+</div>
+                        <span>Drag & Drop Tokens File or Click to Upload</span>
+                        <input type="file" id="token-file" accept=".txt" class="file-input">
+                    </div>
+                    <div class="file-info" id="file-info">No file selected</div>
+                </div>
+                <div class="input-group">
+                    <label for="tokens-textarea">Or Paste Tokens (one per line)</label>
+                    <textarea id="tokens-textarea" placeholder="Enter tokens here..."></textarea>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Proxy Settings</h2>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <span>Enable Proxy</span>
+                        <span class="setting-description">Use proxies for connections</span>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle">
+                            <input type="checkbox" id="proxy-enabled" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="drag-drop-area" id="proxies-drag-area">
+                    <div class="drag-drop-content">
+                        <div class="upload-icon">+</div>
+                        <span>Drag & Drop Proxies File or Click to Upload</span>
+                        <input type="file" id="proxy-file" accept=".txt" class="file-input">
+                    </div>
+                    <div class="file-info" id="proxy-file-info">No file selected</div>
+                </div>
+                <div class="input-group">
+                    <label for="proxy-list">Or Paste Proxies (one per line)</label>
+                    <textarea id="proxy-list" placeholder="Enter proxies here...
+Format: ip:port:username:password or ip:port"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="proxy-mode">Proxy Mode</label>
+                    <select id="proxy-mode">
+                        <option value="rotating" selected>Rotating</option>
+                        <option value="per-token">Per-Token</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="vc-joiner-tab">
+            <div class="card">
+                <h2>Voice Channel Joiner</h2>
+                <div class="input-group">
+                    <label for="vc-server-id">Server ID</label>
+                    <input type="text" id="vc-server-id" placeholder="Enter server ID">
+                </div>
+                <div class="input-group">
+                    <label for="vc-channel-id">Voice Channel ID</label>
+                    <input type="text" id="vc-channel-id" placeholder="Enter voice channel ID">
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <span>Join Muted</span>
+                        <span class="setting-description">Join voice channels with microphone muted</span>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle">
+                            <input type="checkbox" id="vc-join-muted" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <span>Join Deafened</span>
+                        <span class="setting-description">Join voice channels with audio deafened</span>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle">
+                            <input type="checkbox" id="vc-join-deafened">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <span>Randomize Disabled Options</span>
+                        <span class="setting-description">Randomly enable/disable options that are turned off</span>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle">
+                            <input type="checkbox" id="vc-randomize-options">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="actions">
+                    <button id="vc-join-btn" class="primary-btn">Join Voice Channel</button>
+                    <button id="vc-leave-btn" class="secondary-btn">Leave Voice Channel</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Voice Channel Status</h2>
+                <div class="vc-status-container">
+                    <table class="vc-status-table">
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Server</th>
+                                <th>Channel</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vc-status-body">
+                            <tr>
+                                <td colspan="5" class="empty-state">No active voice connections</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="token-leaver-tab">
+            <div class="card">
+                <h2>Leave Server</h2>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <span>Leave All Servers</span>
+                        <span class="setting-description">Leave all servers the tokens are in</span>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle">
+                            <input type="checkbox" id="leave-all-servers">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="input-group" id="leave-server-id-container">
+                    <label for="leave-server-id">Server ID to Leave</label>
+                    <input type="text" id="leave-server-id" placeholder="Enter server ID">
+                </div>
+                <div class="warning-box">
+                    <div class="warning-icon">⚠️</div>
+                    <div class="warning-text">
+                        <strong>Warning:</strong> Leaving all servers is irreversible. Use with caution.
+                    </div>
+                </div>
+                <div class="actions">
+                    <button id="leave-btn" class="primary-btn">Leave Server</button>
+                    <button id="stop-leave-btn" class="secondary-btn" disabled>Stop</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="pfp-adder-tab">
+            <div class="card">
+                <h2>PFP Adder</h2>
+                <div class="pfp-preview-container">
+                    <div class="pfp-preview" id="pfp-preview">
+                        <div class="pfp-placeholder">Preview</div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <span>Use Random PFP from Folder</span>
+                        <span class="setting-description">Randomly select profile pictures from a folder</span>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle">
+                            <input type="checkbox" id="pfp-random">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="drag-drop-area" id="single-pfp-upload">
+                    <div class="drag-drop-content">
+                        <div class="upload-icon">+</div>
+                        <span>Drag & Drop Profile Picture or Click to Upload</span>
+                        <input type="file" id="pfp-file" accept="image/*" class="file-input">
+                    </div>
+                    <div class="file-info" id="pfp-file-info">No file selected</div>
+                </div>
+                <div class="drag-drop-area" id="pfp-folder-upload" style="display: none;">
+                    <div class="drag-drop-content">
+                        <div class="upload-icon">+</div>
+                        <span>Drag & Drop PFP Folder (ZIP) or Click to Upload</span>
+                        <input type="file" id="pfp-folder" accept=".zip" class="file-input">
+                    </div>
+                    <div class="file-info" id="pfp-folder-info">No folder selected</div>
+                </div>
+                <div class="actions">
+                    <button id="pfp-add-btn" class="primary-btn">Update Profile Pictures</button>
+                    <button id="pfp-stop-btn" class="secondary-btn" disabled>Stop</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="settings-tab">
+            <div class="settings-container">
+                <div class="settings-section">
+                    <h2>Delay Settings</h2>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <span>Enable Delay</span>
+                            <span class="setting-description">Add random delay between operations</span>
+                        </div>
+                        <div class="setting-control">
+                            <label class="toggle">
+                                <input type="checkbox" id="delay-enabled">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <span>Minimum Delay (seconds)</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="number" id="delay-min" value="2" min="0" step="1">
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <span>Maximum Delay (seconds)</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="number" id="delay-max" value="4" min="0" step="1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h2>Captcha Settings</h2>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <span>Enable Captcha Solving</span>
+                            <span class="setting-description">Automatically solve captchas</span>
+                        </div>
+                        <div class="setting-control">
+                            <label class="toggle">
+                                <input type="checkbox" id="captcha-enabled" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <span>Captcha Service</span>
+                        </div>
+                        <div class="setting-control">
+                            <select id="captcha-service">
+                                <option value="24captcha" selected>24captcha</option>
+                                <option value="razorcap">Razorcap</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <span>API Key</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="text" id="captcha-api-key" placeholder="Enter API key">
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <span>Timeout (seconds)</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="number" id="captcha-timeout" value="60" min="10" step="1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h2>Join Settings</h2>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <span>Bypass Rules</span>
+                            <span class="setting-description">Automatically accept server rules</span>
+                        </div>
+                        <div class="setting-control">
+                            <label class="toggle">
+                                <input type="checkbox" id="join-bypass-rules" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <span>Bypass Onboarding</span>
+                            <span class="setting-description">Skip Discord onboarding screens</span>
+                        </div>
+                        <div class="setting-control">
+                            <label class="toggle">
+                                <input type="checkbox" id="join-bypass-onboarding" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <span>Bypass RestoreCord</span>
+                            <span class="setting-description">Bypass RestoreCord verification</span>
+                        </div>
+                        <div class="setting-control">
+                            <label class="toggle">
+                                <input type="checkbox" id="join-bypass-restorecord">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <span>Timeout (seconds)</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="number" id="join-timeout" value="20" min="5" step="1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h2>Appearance Settings</h2>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <span>Custom Nickname</span>
+                            <span class="setting-description">Use custom nickname when joining</span>
+                        </div>
+                        <div class="setting-control">
+                            <label class="toggle">
+                                <input type="checkbox" id="appearance-nickname-enabled">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <span>Nickname Format</span>
+                            <span class="setting-description">Use {random} for random numbers</span>
+                        </div>
+                        <div class="setting-control">
+                            <input type="text" id="appearance-nickname" value="Member {random}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="terminal-tab">
+            <div class="card log-card">
+                <h2>Activity Log</h2>
+                <div class="log-container" id="log-container">
+                </div>
+                <button id="clear-log-btn" class="secondary-btn">Clear Log</button>
+            </div>
+            
+            <div class="card status-card" id="join-card">
+                <h2>Operation Status</h2>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress" class="progress-bar" style="width: 0%" data-type="nexus"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span class="progress-text" data-type="nexus">0/0</span>
+                    </div>
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-value success-text" data-type="nexus" data-stat="successful">0</span>
+                        <span class="stat-label">Successful</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value error-text" data-type="nexus" data-stat="failed">0</span>
+                        <span class="stat-label">Failed</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" data-type="nexus" data-stat="pending">0</span>
+                        <span class="stat-label">Pending</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/backend.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
